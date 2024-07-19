@@ -10,23 +10,51 @@
 
     <div class="container-fluid">
         <div class="row">
-            @forelse ($lista_array as $li)
-                <div class="col-4 border">
-                    <p>UUID: {{ $li['UUID'] ?? 'UUID no disponible' }}</p>
-                    <p>UID: {{ $li['UID'] ?? 'UID no disponible' }}</p>
-                    <p>Folio: {{ $li['Folio'] ?? 'Folio no disponible' }}</p>
-                    <p>Fecha Timbrado: {{ $li['FechaTimbrado'] ?? 'Fecha Timbrado no disponible' }}</p>
-                    <p>Receptor: {{ $li['Receptor'] ?? 'Receptor no disponible' }}</p>
-                    <p>Razon Social Receptor: {{ $li['RazonSocialReceptor'] ?? 'Razon Social Receptor no disponible' }}</p>
-                    <p>Total: {{ $li['Total'] ?? 'Total no disponible' }}</p>
-                    <p>Subtotal: {{ $li['Subtotal'] ?? 'Subtotal no disponible' }}</p>
-                    <p>Num Order: {{ $li['NumOrder'] ?? 'Num Order no disponible' }}</p>
-                    <p>Status: {{ $li['Status'] ?? 'Status no disponible' }}</p>
-                    <p>Version: {{ $li['Version'] ?? 'Version no disponible' }}</p>
+            <div class="col-12 border border-dark">
+                <div class="row">
+                    <div class="col">
+
+                    </div>
                 </div>
-            @empty  
-                <div>No se han capturado los datos</div>
-            @endforelse
+
+                <div class="row bg-dark py-2 text-white">
+                    <div class="col-3">Razón Social</div>
+                    <div class="col-2">Folio</div>
+                    <div class="col-1">Serie</div>
+                    <div class="col-1">Total</div>
+                    <div class="col-1">Fecha</div>
+                    <div class="col-1">Estatus</div>
+                    <div class="col-2">Opciones</div>
+                </div>
+           
+                @forelse ($lista_array as $li)
+                    <div class="row border-dark">
+                        <div class="col-3 border-end border-dark">{{ $li['RazonSocialReceptor' ?? 'Razón social no disponible'] }}</div>
+                        <div class="col-2 border-end border-dark">{{ $li['Folio'] ?? 'Folio no disponible' }}</div>
+                        <div class="col-1 border-end border-dark">{{ $li['UID'] ?? 'UID no disponible' }}</div>
+                        <div class="col-1 border-end border-dark">{{ $li['Total'] ?? 'Total no disponible' }}</div>
+                        <div class="col-1 border-end border-dark">{{ $li['FechaTimbrado'] ?? 'Fecha Timbrado no disponible' }}</div>
+                        <div class="col-1 {{ ($li['Status'] == 'eliminada') ? 'bg-white' : 'bg-info' }}">{{ $li['Status'] ?? 'Status no disponible' }}</div>
+                        <div class="col-3">
+                            <div class="row">
+                                <div class="col-6 px-0">
+                                    <form action="{{ route('api.cancelCdfi') }}" method="POST" id="form-cancel-{{ $li['UID'] }}">
+                                        @csrf
+                                        <input type="hidden" name="uid" value="{{ $li['UID'] }}">
+                                        <button type="submit" class="btn btn-danger w-100 rounded-0">Cancelar</button>
+                                    </form>
+                                    
+                                </div>
+                                <div class="col-6 px-0">
+                                    <button class="btn btn-dark w-100 rounded-0">Enviar por Email</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                @empty  
+                    <div>No se han capturado los datos</div>
+                @endforelse
+            </div>
         </div>
     </div>
     

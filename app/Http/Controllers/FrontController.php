@@ -41,12 +41,12 @@ class FrontController extends Controller
             return redirect()->back();
         }
 
-        $lista_d = json_decode($lista, true); // Decodificar como array asociativo
-        $lista_array = $lista_d['data'] ?? []; // Asegurarse de que data existe
-        // $lista_collection = collect($lista_array);
+        $lista_d = json_decode($lista, true);
+        dd($lista_d);
+        $lista_array = $lista_d['data'] ?? [];
 
         // dd($lista_array);
-
+        
         return view('front.index', compact('lista_array'));
     }
 
