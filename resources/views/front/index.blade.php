@@ -38,15 +38,20 @@
                         <div class="col-3">
                             <div class="row">
                                 <div class="col-6 px-0">
-                                    <form action="{{ route('api.cancelCdfi') }}" method="POST" id="form-cancel-{{ $li['UID'] }}">
+                                    <form action="{{ route('api.cancelCdfi') }}" method="POST" id="form-cancel-{{ $li['UUID'] }}">
                                         @csrf
+                                        <input type="hidden" name="uuid" value="{{ $li['UUID'] }}">
                                         <input type="hidden" name="uid" value="{{ $li['UID'] }}">
                                         <button type="submit" class="btn btn-danger w-100 rounded-0">Cancelar</button>
                                     </form>
-                                    
                                 </div>
                                 <div class="col-6 px-0">
-                                    <button class="btn btn-dark w-100 rounded-0">Enviar por Email</button>
+                                    <form action="{{ route('api.sendEmail') }}" method="POST" id="form-email-{{ $li['UUID'] }}">
+                                        @csrf
+                                        <input type="hidden" name="uuid" value="{{ $li['UUID'] }}">
+                                        <input type="hidden" name="uid" value="{{ $li['UID'] }}">
+                                        <button type="submit" class="btn btn-dark w-100 rounded-0">Enviar por Email</button>
+                                    </form>
                                 </div>
                             </div>
                         </div>

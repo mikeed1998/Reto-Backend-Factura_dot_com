@@ -42,7 +42,7 @@ class FrontController extends Controller
         }
 
         $lista_d = json_decode($lista, true);
-        dd($lista_d);
+        // dd($lista_d);
         $lista_array = $lista_d['data'] ?? [];
 
         // dd($lista_array);
