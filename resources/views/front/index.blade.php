@@ -38,12 +38,7 @@
                         <div class="col-3">
                             <div class="row">
                                 <div class="col-6 px-0">
-                                    <form action="{{ route('api.cancelCdfi') }}" method="POST" id="form-cancel-{{ $li['UUID'] }}">
-                                        @csrf
-                                        <input type="hidden" name="uuid" value="{{ $li['UUID'] }}">
-                                        <input type="hidden" name="uid" value="{{ $li['UID'] }}">
-                                        <button type="submit" class="btn btn-danger w-100 rounded-0">Cancelar</button>
-                                    </form>
+                                    <button type="submit" class="btn btn-danger w-100 rounded-0" data-bs-toggle="modal" data-bs-target="#staticBackdrop-{{ $li['UID'] }}">Cancelar</button>
                                 </div>
                                 <div class="col-6 px-0">
                                     <form action="{{ route('api.sendEmail') }}" method="POST" id="form-email-{{ $li['UUID'] }}">
@@ -56,7 +51,35 @@
                             </div>
                         </div>
                     </div>
-                @empty  
+                    <!-- Modal -->
+                    <div class="modal fade" id="staticBackdrop-{{ $li['UID'] }}" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel-{{ $li['UID'] }}" aria-hidden="true">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <form action="{{ route('api.cancelCdfi') }}" method="POST" id="form-cancel-{{ $li['UUID'] }}">
+                                <div class="modal-header">
+                                    <h1 class="modal-title fs-5" id="staticBackdropLabel-{{ $li['UID'] }}">Cancelación de CDFI</h1>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                    @csrf
+                                    <input type="hidden" name="uuid" value="{{ $li['UUID'] }}">
+                                    <input type="hidden" name="uid" value="{{ $li['UID'] }}">
+                                    <label for="folioR">Folio por el que deseas reemplazar el CDFI que deseas cancelar</label>
+                                    <select name="folioR" id="folioR" class="form-control">
+                                        @foreach ($lista_array as $subli)
+                                            <option value="{{ $subli['UUID'] }}">{{ $subli['Folio'] }} - {{ $subli['RazonSocialReceptor'] }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="submit" class="btn btn-primary w-100">Cancelar CFDI</button>
+                                    <button type="button" class="btn btn-secondary w-100" data-bs-dismiss="modal">Cerrar ventana</button>
+                                </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                @empty
                     <div>No se han capturado los datos</div>
                 @endforelse
             </div>

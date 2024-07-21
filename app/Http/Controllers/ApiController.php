@@ -50,6 +50,7 @@ class ApiController extends Controller
         $cfdi_uid = $request->input('uid');
         $cfdi_uuid = $request->input('uuid');
         $motivo = $request->input('motivo', '01');
+        $folio_sustituto = $request->input('folioR');
 
         // dd($cfdi_uid, $cfdi_uuid);
     
@@ -57,9 +58,6 @@ class ApiController extends Controller
         if (!$cfdi_uid || !$cfdi_uuid) {
             return response()->json(['error' => 'cfdi_uid y cfdi_uuid son obligatorios'], 400);
         }
-
-        $folio_sustituto = Uuid::uuid4()->toString();
-        // dd($folio_sustituto);
     
         // Inicializar cURL
         $curl = curl_init();
