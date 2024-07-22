@@ -4,7 +4,6 @@
 
 @section('extraCSS')
     <style>
-        
         @media(max-width: 992px) { 
             .container-fluid {
                 font-size: 0.7rem;
@@ -22,6 +21,10 @@
                 font-size: 1rem;
             } 
         }
+    
+        .content-container {
+            display: none;
+        }
 
     </style>
 @endsection
@@ -32,9 +35,7 @@
         <div class="row">
             <div class="col-12 border border-dark">
                 <div class="row">
-                    <div class="col">
-
-                    </div>
+                    <div class="col"></div>
                 </div>
 
                 <div class="row bg-dark text-white">
@@ -68,29 +69,49 @@
                     </div>
                      <!-- Modal -->
                      <div class="modal fade" id="staticBackdrop-{{ $li['UID'] }}" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel-{{ $li['UID'] }}" aria-hidden="true">
-                        <div class="modal-dialog">
+                        <div class="modal-dialog modal-lg">
                             <div class="modal-content">
-                                <form id="form-cancel-{{ $li['UUID'] }}">
-                                    <div class="modal-header">
-                                        <h1 class="modal-title fs-5" id="staticBackdropLabel-{{ $li['UID'] }}">Cancelación de CDFI</h1>
-                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                <div class="modal-header">
+                                    <h1 class="modal-title fs-5" id="staticBackdropLabel-{{ $li['UID'] }}">Cancelación de CDFI</h1>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <select id="contentSelect-{{ $li['UID'] }}" class="form-select contentSelect">
+                                        <option value="">Seleccione una opción para cancelar</option>
+                                        <option value="cont1">01 - Comprobante emitido con errores con relación</option>
+                                        <option value="cont2">02 - Comprobante emitido con errores sin relación</option>
+                                        <option value="cont3">03 - No se llevó a cabo la operación</option>
+                                        <option value="cont4">04 - Operación nominiativa relacionada en una factura global</option>
+                                    </select>
+                                    <div id="cont1" class="content-container">
+                                        <form id="form-cancel-{{ $li['UUID'] }}">
+                                            @csrf
+                                            <input type="hidden" name="uuid" value="{{ $li['UUID'] }}">
+                                            <input type="hidden" name="uid" value="{{ $li['UID'] }}">
+                                            <input type="hidden" name="motivo" value="1">
+                                            <label for="folioR">Folio por el que deseas reemplazar el CDFI que deseas cancelar</label>
+                                            <select name="folioR" id="folioR-{{ $li['UID'] }}" class="form-control">
+                                                @foreach ($lista_array as $subli)
+                                                    <option value="{{ $subli['UUID'] }}">{{ $subli['Folio'] }} - {{ $subli['RazonSocialReceptor'] }}</option>
+                                                @endforeach
+                                            </select>
+                                            <button type="button" class="btn btn-primary w-100" onclick="cancelCdfi('{{ $li['UUID'] }}', '{{ $li['UID'] }}')">Cancelar CFDI</button>
+                                        </form>
                                     </div>
-                                    <div class="modal-body">
-                                        @csrf
-                                        <input type="hidden" name="uuid" value="{{ $li['UUID'] }}">
-                                        <input type="hidden" name="uid" value="{{ $li['UID'] }}">
-                                        <label for="folioR">Folio por el que deseas reemplazar el CDFI que deseas cancelar</label>
-                                        <select name="folioR" id="folioR-{{ $li['UID'] }}" class="form-control">
-                                            @foreach ($lista_array as $subli)
-                                                <option value="{{ $subli['UUID'] }}">{{ $subli['Folio'] }} - {{ $subli['RazonSocialReceptor'] }}</option>
-                                            @endforeach
-                                        </select>
+                                    <div id="cont2" class="content-container">
+                                        Contenido 2ads
                                     </div>
-                                    <div class="modal-footer">
-                                        <button type="button" class="btn btn-primary w-100" onclick="cancelCdfi('{{ $li['UUID'] }}', '{{ $li['UID'] }}')">Cancelar CFDI</button>
-                                        <button type="button" class="btn btn-secondary w-100" data-bs-dismiss="modal">Cerrar ventana</button>
+                                    <div id="cont3" class="content-container">
+                                        Contenido 3das
                                     </div>
-                                </form>
+                                    <div id="cont4" class="content-container">
+                                        Contenido 4dasd
+                                    </div>
+                                    
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary w-100" data-bs-dismiss="modal">Cerrar ventana</button>
+                                </div>                    
                             </div>
                         </div>
                     </div>
@@ -110,9 +131,36 @@
                 Notification.requestPermission();
             }
         });
-    </script>
 
-    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('.contentSelect').forEach(function(selectElement) {
+                selectElement.addEventListener('change', function() {
+                    console.log("Change event triggered");
+                    // Ocultar todos los contenedores de contenido
+                    var modalBody = this.closest('.modal-body');
+                    var contentContainers = modalBody.querySelectorAll('.content-container');
+                    contentContainers.forEach(function(container) {
+                        container.style.display = 'none';
+                    });
+
+                    // Obtener el valor seleccionado
+                    var selectedValue = this.value;
+                    console.log("Selected value: " + selectedValue); // Debugging line
+                    if (selectedValue) {
+                        // Mostrar el contenedor correspondiente
+                        var selectedContainer = modalBody.querySelector('#' + selectedValue);
+                        if (selectedContainer) {
+                            selectedContainer.style.display = 'block';
+                            // Ocultar el select
+                            this.style.display = 'none';
+                        } else {
+                            console.error("Container not found for value: " + selectedValue); // Debugging line
+                        }
+                    }
+                });
+            });
+        });
+
         async function sendEmail(uuid, uid) {
             try {
                 let response = await fetch("{{ route('api.sendEmail') }}", {
@@ -177,8 +225,5 @@
                 swal("Error al cancelar el CFDI: " + error.message);
             }
         }
-
     </script>
-
-
 @endsection

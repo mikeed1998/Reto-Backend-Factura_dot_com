@@ -44,10 +44,15 @@ class ApiController extends Controller
     }
 
     public function cancelCdfi(Request $request) {
+
         $cfdi_uid = $request->input('uid');
         $cfdi_uuid = $request->input('uuid');
-        $motivo = $request->input('motivo', '01');
         $folio_sustituto = $request->input('folioR');
+        $motivo = $request->input('motivo', '01');
+        $motivo2 = $request->input('motivo', '02');
+        $motivo3 = $request->input('motivo', '03');
+        $motivo4 = $request->input('motivo', '04');
+        
     
         if (!$cfdi_uid || !$cfdi_uuid) {
             return response()->json(['error' => 'cfdi_uid y cfdi_uuid son obligatorios'], 400);
