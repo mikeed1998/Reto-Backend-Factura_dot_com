@@ -48,16 +48,21 @@ class ApiController extends Controller
         $cfdi_uid = $request->input('uid');
         $cfdi_uuid = $request->input('uuid');
         $folio_sustituto = $request->input('folioR');
-        $motivo = $request->input('motivo', '01');
-        $motivo2 = $request->input('motivo', '02');
-        $motivo3 = $request->input('motivo', '03');
-        $motivo4 = $request->input('motivo', '04');
-        
+        $motivo = $request->input('motivo');
     
         if (!$cfdi_uid || !$cfdi_uuid) {
             return response()->json(['error' => 'cfdi_uid y cfdi_uuid son obligatorios'], 400);
         }
-    
+
+        // Carga util condicional, con esto evito repetir demasiado código, unicamente determino que campos enviaré a la API
+        $postData = [
+            'motivo' => $motivo,
+        ];
+
+        if ($motivo == '01') {
+            $postData['folioSustituto'] = $folio_sustituto;
+        }
+
         $curl = curl_init();
     
         curl_setopt_array($curl, array(
@@ -69,10 +74,7 @@ class ApiController extends Controller
             CURLOPT_FOLLOWLOCATION => true,
             CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
             CURLOPT_CUSTOMREQUEST => 'POST',
-            CURLOPT_POSTFIELDS => json_encode([
-                'motivo' => $motivo,
-                'folioSustituto' => $folio_sustituto
-            ]),
+            CURLOPT_POSTFIELDS => json_encode($postData),
             CURLOPT_HTTPHEADER => array(
                 'Content-Type: application/json',
                 'F-PLUGIN: 9d4095c8f7ed5785cb14c0e3b033eeb8252416ed',
@@ -99,6 +101,7 @@ class ApiController extends Controller
     
         return response()->json($response_data);
     }
+    
     
 
     public function sendEmail(Request $request)

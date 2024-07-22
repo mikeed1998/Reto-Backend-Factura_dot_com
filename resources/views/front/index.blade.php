@@ -59,7 +59,7 @@
                         <div class="col-lg-3 border border-bottom col-12">
                             <div class="row">
                                 <div class="col-6 px-0">
-                                    <button class="btn btn-danger w-100 rounded-0 h-100" data-bs-toggle="modal" data-bs-target="#staticBackdrop-{{ $li['UID'] }}">Cancelar</button>
+                                    <button class="btn btn-danger w-100 rounded-0 h-100" data-bs-toggle="modal" data-bs-target="#staticBackdrop-{{ $li['UID'] }}" @if($li['Status'] == 'cancelada') disabled @endif>Cancelar</button>
                                 </div>
                                 <div class="col-6 px-0">
                                     <button type="button" class="btn btn-dark w-100 rounded-0" onclick="sendEmail('{{ $li['UUID'] }}', '{{ $li['UID'] }}')">Enviar por Email</button>
@@ -78,36 +78,59 @@
                                 <div class="modal-body">
                                     <select id="contentSelect-{{ $li['UID'] }}" class="form-select contentSelect">
                                         <option value="">Seleccione una opción para cancelar</option>
-                                        <option value="cont1">01 - Comprobante emitido con errores con relación</option>
-                                        <option value="cont2">02 - Comprobante emitido con errores sin relación</option>
-                                        <option value="cont3">03 - No se llevó a cabo la operación</option>
-                                        <option value="cont4">04 - Operación nominiativa relacionada en una factura global</option>
+                                        <option value="cont1" data-motivo="01">01 - Comprobante emitido con errores con relación</option>
+                                        <option value="cont2" data-motivo="02">02 - Comprobante emitido con errores sin relación</option>
+                                        <option value="cont3" data-motivo="03">03 - No se llevó a cabo la operación</option>
+                                        <option value="cont4" data-motivo="04">04 - Operación nominiativa relacionada en una factura global</option>
                                     </select>
                                     <div id="cont1" class="content-container">
+                                        <h2>Comprobante emitido con errores con relación</h2>
                                         <form id="form-cancel-{{ $li['UUID'] }}">
                                             @csrf
                                             <input type="hidden" name="uuid" value="{{ $li['UUID'] }}">
                                             <input type="hidden" name="uid" value="{{ $li['UID'] }}">
-                                            <input type="hidden" name="motivo" value="1">
+                                            <input type="hidden" name="motivo" value="01">
                                             <label for="folioR">Folio por el que deseas reemplazar el CDFI que deseas cancelar</label>
                                             <select name="folioR" id="folioR-{{ $li['UID'] }}" class="form-control">
                                                 @foreach ($lista_array as $subli)
-                                                    <option value="{{ $subli['UUID'] }}">{{ $subli['Folio'] }} - {{ $subli['RazonSocialReceptor'] }}</option>
+                                                    @if($subli['Status'] != 'cancelada')
+                                                        <option value="{{ $subli['UUID'] }}">{{ $subli['Folio'] }} - {{ $subli['RazonSocialReceptor'] }}</option>
+                                                    @endif
                                                 @endforeach
                                             </select>
                                             <button type="button" class="btn btn-primary w-100" onclick="cancelCdfi('{{ $li['UUID'] }}', '{{ $li['UID'] }}')">Cancelar CFDI</button>
                                         </form>
                                     </div>
                                     <div id="cont2" class="content-container">
-                                        Contenido 2ads
+                                        <h2>Comprobante emitido con errores sin relación</h2>
+                                        <form id="form-cancel-{{ $li['UUID'] }}">
+                                            @csrf
+                                            <input type="hidden" name="uuid" value="{{ $li['UUID'] }}">
+                                            <input type="hidden" name="uid" value="{{ $li['UID'] }}">
+                                            <input type="hidden" name="motivo" value="02">
+                                            <button type="button" class="btn btn-primary w-100" onclick="cancelCdfi('{{ $li['UUID'] }}', '{{ $li['UID'] }}')">Cancelar CFDI</button>
+                                        </form>
                                     </div>
                                     <div id="cont3" class="content-container">
-                                        Contenido 3das
-                                    </div>
+                                        <h2>No se llevó a cabo la operación</h2>
+                                        <form id="form-cancel-{{ $li['UUID'] }}">
+                                            @csrf
+                                            <input type="hidden" name="uuid" value="{{ $li['UUID'] }}">
+                                            <input type="hidden" name="uid" value="{{ $li['UID'] }}">
+                                            <input type="hidden" name="motivo" value="03">
+                                            <button type="button" class="btn btn-primary w-100" onclick="cancelCdfi('{{ $li['UUID'] }}', '{{ $li['UID'] }}')">Cancelar CFDI</button>
+                                        </form>
+                                    </div>  
                                     <div id="cont4" class="content-container">
-                                        Contenido 4dasd
+                                        <h2>Comprobante emitido con errores sin relación</h2>
+                                        <form id="form-cancel-{{ $li['UUID'] }}">
+                                            @csrf
+                                            <input type="hidden" name="uuid" value="{{ $li['UUID'] }}">
+                                            <input type="hidden" name="uid" value="{{ $li['UID'] }}">
+                                            <input type="hidden" name="motivo" value="04">
+                                            <button type="button" class="btn btn-primary w-100" onclick="cancelCdfi('{{ $li['UUID'] }}', '{{ $li['UID'] }}')">Cancelar CFDI</button>
+                                        </form>
                                     </div>
-                                    
                                 </div>
                                 <div class="modal-footer">
                                     <button type="button" class="btn btn-secondary w-100" data-bs-dismiss="modal">Cerrar ventana</button>
@@ -135,26 +158,29 @@
         document.addEventListener('DOMContentLoaded', function() {
             document.querySelectorAll('.contentSelect').forEach(function(selectElement) {
                 selectElement.addEventListener('change', function() {
-                    console.log("Change event triggered");
-                    // Ocultar todos los contenedores de contenido
                     var modalBody = this.closest('.modal-body');
                     var contentContainers = modalBody.querySelectorAll('.content-container');
+                    
+                    // Ocultar todos los contenedores de contenido
                     contentContainers.forEach(function(container) {
                         container.style.display = 'none';
                     });
 
-                    // Obtener el valor seleccionado
                     var selectedValue = this.value;
-                    console.log("Selected value: " + selectedValue); // Debugging line
+                    var selectedOption = this.options[this.selectedIndex];
+                    var selectedMotivo = selectedOption.getAttribute('data-motivo');
+                    
                     if (selectedValue) {
-                        // Mostrar el contenedor correspondiente
                         var selectedContainer = modalBody.querySelector('#' + selectedValue);
                         if (selectedContainer) {
                             selectedContainer.style.display = 'block';
-                            // Ocultar el select
-                            this.style.display = 'none';
-                        } else {
-                            console.error("Container not found for value: " + selectedValue); // Debugging line
+
+                            // Actualizar el campo oculto motivo en el formulario
+                            var form = selectedContainer.querySelector('form');
+                            var motivoInput = form.querySelector('input[name="motivo"]');
+                            if (motivoInput) {
+                                motivoInput.value = selectedMotivo;
+                            }
                         }
                     }
                 });
@@ -197,8 +223,14 @@
         }
 
         async function cancelCdfi(uuid, uid) {
-            const form = document.getElementById(`form-cancel-${uuid}`);
-            const folioR = form.querySelector(`#folioR-${uid}`).value;
+            const form = document.querySelector(`#form-cancel-${uuid}`);
+            const folioR = form.querySelector(`#folioR-${uid}`) ? form.querySelector(`#folioR-${uid}`).value : '';
+            const motivo = form.querySelector('input[name="motivo"]').value;
+
+            console.log('UUID:', uuid);
+            console.log('UID:', uid);
+            console.log('Motivo:', motivo);
+            console.log('FolioR:', folioR);
 
             const modal = bootstrap.Modal.getInstance(document.querySelector(`#staticBackdrop-${uid}`));
             modal.hide();
@@ -210,7 +242,7 @@
                         "Content-Type": "application/json",
                         "X-CSRF-TOKEN": "{{ csrf_token() }}"
                     },
-                    body: JSON.stringify({ uuid, uid, folioR })
+                    body: JSON.stringify({ uuid, uid, folioR, motivo })
                 });
 
                 let data = await response.json();
@@ -225,5 +257,8 @@
                 swal("Error al cancelar el CFDI: " + error.message);
             }
         }
+
+
+    
     </script>
 @endsection
