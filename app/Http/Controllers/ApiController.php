@@ -2,11 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class ApiController extends Controller
 {
-    public function getCfdiList()
+    public function getCfdiList() : JsonResponse
     {
         $curl = curl_init();
 
@@ -16,7 +17,7 @@ class ApiController extends Controller
             CURLOPT_ENCODING => '',
             CURLOPT_MAXREDIRS => 10,
             CURLOPT_TIMEOUT => 0,
-            CURLOPT_FOLLOWLOCATION => true,
+            CURLOPT_FOLLOWLOCATION => true, 
             CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
             CURLOPT_CUSTOMREQUEST => 'GET',
             CURLOPT_POSTFIELDS => '',
@@ -43,7 +44,8 @@ class ApiController extends Controller
         return response()->json(json_decode($response, true));
     }
 
-    public function cancelCdfi(Request $request) {
+    public function cancelCdfi(Request $request) : JsonResponse
+    {
 
         $cfdi_uid = $request->input('uid');
         $cfdi_uuid = $request->input('uuid');
@@ -104,7 +106,7 @@ class ApiController extends Controller
     
     
 
-    public function sendEmail(Request $request)
+    public function sendEmail(Request $request) : JsonResponse
     {
         $cfdi_uid = $request->input('uid');
         $cfdi_uuid = $request->input('uuid');
