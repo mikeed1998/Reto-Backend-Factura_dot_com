@@ -78,14 +78,14 @@
                                 <div class="modal-body">
                                     <select id="contentSelect-{{ $li['UID'] }}" class="form-select contentSelect">
                                         <option value="">Seleccione una opción para cancelar</option>
-                                        <option value="cont1" data-motivo="01">01 - Comprobante emitido con errores con relación</option>
-                                        <option value="cont2" data-motivo="02">02 - Comprobante emitido con errores sin relación</option>
-                                        <option value="cont3" data-motivo="03">03 - No se llevó a cabo la operación</option>
-                                        <option value="cont4" data-motivo="04">04 - Operación nominiativa relacionada en una factura global</option>
+                                        <option value="cont1">01 - Comprobante emitido con errores con relación</option>
+                                        <option value="cont2">02 - Comprobante emitido con errores sin relación</option>
+                                        <option value="cont3">03 - No se llevó a cabo la operación</option>
+                                        <option value="cont4">04 - Operación nominiativa relacionada en una factura global</option>
                                     </select>
                                     <div id="cont1" class="content-container">
                                         <h2>Comprobante emitido con errores con relación</h2>
-                                        <form id="form-cancel-{{ $li['UUID'] }}">
+                                        <form id="form-cancel-{{ $li['UUID'] }}" data-motivo="01">
                                             @csrf
                                             <input type="hidden" name="uuid" value="{{ $li['UUID'] }}">
                                             <input type="hidden" name="uid" value="{{ $li['UID'] }}">
@@ -103,7 +103,7 @@
                                     </div>
                                     <div id="cont2" class="content-container">
                                         <h2>Comprobante emitido con errores sin relación</h2>
-                                        <form id="form-cancel-{{ $li['UUID'] }}">
+                                        <form id="form-cancel-{{ $li['UUID'] }}" data-motivo="02">
                                             @csrf
                                             <input type="hidden" name="uuid" value="{{ $li['UUID'] }}">
                                             <input type="hidden" name="uid" value="{{ $li['UID'] }}">
@@ -113,7 +113,7 @@
                                     </div>
                                     <div id="cont3" class="content-container">
                                         <h2>No se llevó a cabo la operación</h2>
-                                        <form id="form-cancel-{{ $li['UUID'] }}">
+                                        <form id="form-cancel-{{ $li['UUID'] }}" data-motivo="03">
                                             @csrf
                                             <input type="hidden" name="uuid" value="{{ $li['UUID'] }}">
                                             <input type="hidden" name="uid" value="{{ $li['UID'] }}">
@@ -123,7 +123,7 @@
                                     </div>  
                                     <div id="cont4" class="content-container">
                                         <h2>Comprobante emitido con errores sin relación</h2>
-                                        <form id="form-cancel-{{ $li['UUID'] }}">
+                                        <form id="form-cancel-{{ $li['UUID'] }}" data-motivo="04">
                                             @csrf
                                             <input type="hidden" name="uuid" value="{{ $li['UUID'] }}">
                                             <input type="hidden" name="uid" value="{{ $li['UID'] }}">
@@ -156,35 +156,40 @@
         });
 
         document.addEventListener('DOMContentLoaded', function() {
-            document.querySelectorAll('.contentSelect').forEach(function(selectElement) {
-                selectElement.addEventListener('change', function() {
-                    var modalBody = this.closest('.modal-body');
-                    var contentContainers = modalBody.querySelectorAll('.content-container');
-                    
-                    // Ocultar todos los contenedores de contenido
-                    contentContainers.forEach(function(container) {
-                        container.style.display = 'none';
-                    });
+        document.querySelectorAll('.contentSelect').forEach(function(selectElement) {
+            selectElement.addEventListener('change', function() {
+            var modalBody = this.closest('.modal-body');
+            var contentContainers = modalBody.querySelectorAll('.content-container');
 
-                    var selectedValue = this.value;
-                    var selectedOption = this.options[this.selectedIndex];
-                    var selectedMotivo = selectedOption.getAttribute('data-motivo');
-                    
-                    if (selectedValue) {
-                        var selectedContainer = modalBody.querySelector('#' + selectedValue);
-                        if (selectedContainer) {
-                            selectedContainer.style.display = 'block';
-
-                            // Actualizar el campo oculto motivo en el formulario
-                            var form = selectedContainer.querySelector('form');
-                            var motivoInput = form.querySelector('input[name="motivo"]');
-                            if (motivoInput) {
-                                motivoInput.value = selectedMotivo;
-                            }
-                        }
-                    }
-                });
+            // Hide all content containers
+            contentContainers.forEach(function(container) {
+                container.style.display = 'none';
             });
+
+            var selectedValue = this.value;
+            var selectedOption = this.options[this.selectedIndex];
+            var selectedMotivo = selectedOption.getAttribute('data-motivo');
+
+            if (selectedValue) {
+                var selectedContainer = modalBody.querySelector('#' + selectedValue);
+                if (selectedContainer) {
+                selectedContainer.style.display = 'block';
+
+                // Update the motivo input
+                var form = selectedContainer.querySelector('form');
+                var motivoInput = form.querySelector('input[name="motivo"]');
+                if (motivoInput) {
+                    motivoInput.value = selectedMotivo;
+
+                    // Reset motivo if no option is selected
+                    if (selectedValue === null || selectedValue === undefined) {
+                    motivoInput.value = '';
+                    }
+                }
+                }
+            }
+            });
+        });
         });
 
         async function sendEmail(uuid, uid) {
@@ -223,9 +228,13 @@
         }
 
         async function cancelCdfi(uuid, uid) {
-            const form = document.querySelector(`#form-cancel-${uuid}`);
+            const formId = event.target.closest('form').id;
+            const form = event.target.closest('form');
+            const motivo = form.getAttribute('data-motivo');
             const folioR = form.querySelector(`#folioR-${uid}`) ? form.querySelector(`#folioR-${uid}`).value : '';
-            const motivo = form.querySelector('input[name="motivo"]').value;
+
+            // const motivoInput = document.querySelector(`#${formId} input[name="motivo"]`);
+            // const motivo = motivoInput.value;
 
             console.log('UUID:', uuid);
             console.log('UID:', uid);
@@ -257,8 +266,6 @@
                 swal("Error al cancelar el CFDI: " + error.message);
             }
         }
-
-
     
     </script>
 @endsection
