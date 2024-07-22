@@ -48,7 +48,7 @@ class ApiController extends Controller
         $cfdi_uuid = $request->input('uuid');
         $motivo = $request->input('motivo', '01');
         $folio_sustituto = $request->input('folioR');
-
+    
         if (!$cfdi_uid || !$cfdi_uuid) {
             return response()->json(['error' => 'cfdi_uid y cfdi_uuid son obligatorios'], 400);
         }
@@ -70,8 +70,8 @@ class ApiController extends Controller
             ]),
             CURLOPT_HTTPHEADER => array(
                 'Content-Type: application/json',
-                'F-PLUGIN: 9d4095c8f7ed5785cb14c0e3b033eeb8252416ed', 
-                'F-Api-Key: JDJ5JDEwJHNITDlpZ0ZwMzdyd0RCTzFHVXlUOS5XVnlvaFFjd3ZWcnRBZHBIV0Q5QU5xM1Jqc2lpNlVD', 
+                'F-PLUGIN: 9d4095c8f7ed5785cb14c0e3b033eeb8252416ed',
+                'F-Api-Key: JDJ5JDEwJHNITDlpZ0ZwMzdyd0RCTzFHVXlUOS5XVnlvaFFjd3ZWcnRBZHBIV0Q5QU5xM1Jqc2lpNlVD',
                 'F-Secret-Key: JDJ5JDEwJHRXbFROTHNiYzRzTXBkRHNPUVA3WU83Y2hxTHdpZHltOFo5UEdoMXVoakNKWTl5aDQwdTFT'
             ),
         ));
@@ -94,6 +94,7 @@ class ApiController extends Controller
     
         return response()->json($response_data);
     }
+    
 
     public function sendEmail(Request $request)
     {

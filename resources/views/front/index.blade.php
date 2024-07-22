@@ -112,74 +112,73 @@
         });
     </script>
 
-<script>
-    async function sendEmail(uuid, uid) {
-        try {
-            let response = await fetch("{{ route('api.sendEmail') }}", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "X-CSRF-TOKEN": "{{ csrf_token() }}"
-                },
-                body: JSON.stringify({ uuid, uid })
-            });
+    <script>
+        async function sendEmail(uuid, uid) {
+            try {
+                let response = await fetch("{{ route('api.sendEmail') }}", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-CSRF-TOKEN": "{{ csrf_token() }}"
+                    },
+                    body: JSON.stringify({ uuid, uid })
+                });
 
-            let data = await response.json();
+                let data = await response.json();
 
-            if (response.ok) {
-                showNotification("Correo enviado exitosamente", "success");
-            } else {
-                showNotification(data.error || "Error al enviar el correo", "error");
+                if (response.ok) {
+                    showNotification("Correo enviado exitosamente", "success");
+                } else {
+                    showNotification(data.error || "Error al enviar el correo", "error");
+                }
+            } catch (error) {
+                showNotification("Error al enviar el correo: " + error.message, "error");
             }
-        } catch (error) {
-            showNotification("Error al enviar el correo: " + error.message, "error");
         }
-    }
 
-    function showNotification(message, type) {
-        if (Notification.permission === "granted") {
-            const options = {
-                body: message,
-                icon: type === "success" ? "path/to/success-icon.png" : "path/to/error-icon.png"
-            };
-            new Notification("Notificación", options);
-        } else {
-            swal(message);
-        }
-    }
-
-    async function cancelCdfi(uuid, uid) {
-        const form = document.getElementById(`form-cancel-${uuid}`);
-        const folioR = form.querySelector(`#folioR-${uid}`).value;
-
-         // Cerrar el modal
-         const modal = bootstrap.Modal.getInstance(document.querySelector(`#staticBackdrop-${uid}`));
-                modal.hide();
-
-        try {
-            let response = await fetch("{{ route('api.cancelCdfi') }}", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "X-CSRF-TOKEN": "{{ csrf_token() }}"
-                },
-                body: JSON.stringify({ uuid, uid, folioR })
-            });
-
-            let data = await response.json();
-
-            if (response.ok) {
-                swal("CFDI cancelado exitosamente");
-               
-                location.reload(); // Recarga la página para reflejar los cambios
+        function showNotification(message, type) {
+            if (Notification.permission === "granted") {
+                const options = {
+                    body: message,
+                    icon: type === "success" ? "path/to/success-icon.png" : "path/to/error-icon.png"
+                };
+                new Notification("Notificación", options);
             } else {
-                swal(data.error || "Error al cancelar el CFDI");
+                swal(message);
             }
-        } catch (error) {
-            swal("Error al cancelar el CFDI: " + error.message);
         }
-    }
-</script>
+
+        async function cancelCdfi(uuid, uid) {
+            const form = document.getElementById(`form-cancel-${uuid}`);
+            const folioR = form.querySelector(`#folioR-${uid}`).value;
+
+            const modal = bootstrap.Modal.getInstance(document.querySelector(`#staticBackdrop-${uid}`));
+            modal.hide();
+
+            try {
+                let response = await fetch("{{ route('api.cancelCdfi') }}", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-CSRF-TOKEN": "{{ csrf_token() }}"
+                    },
+                    body: JSON.stringify({ uuid, uid, folioR })
+                });
+
+                let data = await response.json();
+                console.log(data);
+                if (response.ok && !data.error) {
+                    swal(data.message);
+                    location.reload();
+                } else {
+                    swal(data.error || "Error al cancelar el CFDI");
+                }
+            } catch (error) {
+                swal("Error al cancelar el CFDI: " + error.message);
+            }
+        }
+
+    </script>
 
 
 @endsection
