@@ -41,6 +41,7 @@ class FrontController extends Controller
             return redirect()->back();
         }
 
+        // dd($lista);
         $lista_d = json_decode($lista, true);
         // dd($lista_d);
         $lista_array = $lista_d['data'] ?? [];
