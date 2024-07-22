@@ -103,8 +103,6 @@ class ApiController extends Controller
     
         return response()->json($response_data);
     }
-    
-    
 
     public function sendEmail(Request $request) : JsonResponse
     {
@@ -153,6 +151,5 @@ class ApiController extends Controller
         return response()->json($response_data);
     }
 
-    
 }
 

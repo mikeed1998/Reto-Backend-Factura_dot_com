@@ -4,6 +4,7 @@
 
 @section('extraCSS')
     <style>
+        
         @media(max-width: 992px) { 
             .container-fluid {
                 font-size: 0.7rem;
@@ -21,7 +22,7 @@
                 font-size: 1rem;
             } 
         }
-    
+
         .content-container {
             display: none;
         }
@@ -52,13 +53,25 @@
                 {{-- Fila dinámica --}}
                 @forelse ($lista_array as $li)
                     <div class="row border border-bottom">
-                        <div class="col-lg-4 border border-bottom col-12 py-2 text-lg-start text-center border-end border-dark">{{ $li['RazonSocialReceptor' ?? 'Razón social no disponible'] }}</div>
-                        <div class="col-lg-1 border border-bottom col-4  d-flex align-items-center justify-content-center border-end border-dark">{{ $li['Folio'] ?? 'Folio no disponible' }}</div>
-                        <div class="col-lg-1 border border-bottom col-4  d-flex align-items-center justify-content-center border-end border-dark">{{ $li['UID'] ?? 'UID no disponible' }}</div>
-                        <div class="col-lg-1 border border-bottom col-4  d-flex align-items-center justify-content-center border-end border-dark">{{ $li['Total'] ?? 'Total no disponible' }}</div>
-                        <div class="col-lg-1 border border-bottom col-12 d-flex align-items-center justify-content-center border-end border-dark">{{ $li['FechaTimbrado'] ?? 'Fecha Timbrado no disponible' }}</div>
+                        <div class="col-lg-4 border border-bottom col-12 py-2 text-lg-start text-center border-end border-dark">
+                            {{ $li['RazonSocialReceptor' ?? 'Razón social no disponible'] }}
+                        </div>
+                        <div class="col-lg-1 border border-bottom col-4  d-flex align-items-center justify-content-center border-end border-dark">
+                            {{ $li['Folio'] ?? 'Folio no disponible' }}
+                        </div>
+                        <div class="col-lg-1 border border-bottom col-4  d-flex align-items-center justify-content-center border-end border-dark">
+                            {{ $li['UID'] ?? 'UID no disponible' }}
+                        </div>
+                        <div class="col-lg-1 border border-bottom col-4  d-flex align-items-center justify-content-center border-end border-dark">
+                            {{ $li['Total'] ?? 'Total no disponible' }}
+                        </div>
+                        <div class="col-lg-1 border border-bottom col-12 d-flex align-items-center justify-content-center border-end border-dark">
+                            {{ $li['FechaTimbrado'] ?? 'Fecha Timbrado no disponible' }}
+                        </div>
                         {{-- Uso de operadores ternarios para definir los colores de los "Status" --}}
-                        <div class="col-lg-1 border border-bottom col-12 d-flex align-items-center justify-content-center {{ ($li['Status'] == 'cancelada') ? 'bg-danger' : (($li['Status'] == 'eliminada') ? 'bg-white' : 'bg-info') }}">{{ $li['Status'] ?? 'Status no disponible' }}</div>
+                        <div class="col-lg-1 border border-bottom col-12 d-flex align-items-center justify-content-center {{ ($li['Status'] == 'cancelada') ? 'bg-danger' : (($li['Status'] == 'eliminada') ? 'bg-white' : 'bg-info') }}">
+                            {{ $li['Status'] ?? 'Status no disponible' }}
+                        </div>
                         <div class="col-lg-3 border border-bottom col-12">
                             <div class="row">
                                 <div class="col-6 px-0"> {{-- Para cancelar --}}
@@ -164,7 +177,6 @@
 @endsection
 
 
-
 @section('scripts')
 
     {{-- 
@@ -175,6 +187,7 @@
     --}}
 
     <script>
+
         // Hábilito permisos para las notificaciones, no es necesario ponerlo 
         document.addEventListener('DOMContentLoaded', (event) => {
             if (Notification.permission !== "granted") {
@@ -195,29 +208,30 @@
 
                     var selectedValue = this.value;
                     var selectedOption = this.options[this.selectedIndex];
-                    var selectedMotivo = selectedOption.getAttribute('data-motivo');
 
                     if (selectedValue) {
                         var selectedContainer = modalBody.querySelector('#' + selectedValue);
                         if (selectedContainer) {
                             selectedContainer.style.display = 'block';
-
-                            // Actualizamos el input de motivo
-                            var form = selectedContainer.querySelector('form');
-                            var motivoInput = form.querySelector('input[name="motivo"]');
-                            if (motivoInput) {
-                                motivoInput.value = selectedMotivo;
-
-                                // Reset motivo if no option is selected
-                                if (selectedValue === null || selectedValue === undefined) {
-                                    motivoInput.value = '';
-                                }
-                            }
                         }
                     }
                 });
             });
         });
+
+        // Las librerías que normalmente uso dependen de JQuery pero como no se puede utilizar, hice una alternativa bastante simple
+        // Esta notificación sirve para los casos en los que se envía un Email
+        function showNotification(message, type) {
+            if (Notification.permission === "granted") {
+                const options = {
+                    body: message,
+                    icon: type === "success" ? "path/to/success-icon.png" : "path/to/error-icon.png"
+                };
+                new Notification("Notificación", options);
+            } else {
+                swal(message);
+            }
+        }
 
         // Envíamos un email mediante la API fetch de javascript
         async function sendEmail(uuid, uid) {
@@ -240,18 +254,6 @@
                 }
             } catch (error) {
                 showNotification("Error al enviar el correo: " + error.message, "error");
-            }
-        }
-
-        function showNotification(message, type) {
-            if (Notification.permission === "granted") {
-                const options = {
-                    body: message,
-                    icon: type === "success" ? "path/to/success-icon.png" : "path/to/error-icon.png"
-                };
-                new Notification("Notificación", options);
-            } else {
-                swal(message);
             }
         }
 
@@ -282,8 +284,9 @@
                 let data = await response.json();
                 console.log(data);
                 if (response.ok && !data.error) {
-                    swal(data.message);
-                    location.reload();
+                    swal(data.message).then(() => {
+                        location.reload();
+                    });
                 } else {
                     swal(data.error || "Error al cancelar el CFDI");
                 }
@@ -293,4 +296,6 @@
         }
     
     </script>
+
 @endsection
+
