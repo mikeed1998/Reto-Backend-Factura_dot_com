@@ -63,7 +63,7 @@
                             {{ $li['UID'] ?? 'UID no disponible' }}
                         </div>
                         <div class="col-lg-1 border border-bottom col-4  d-flex align-items-center justify-content-center border-end border-dark">
-                            {{ $li['Total'] ?? 'Total no disponible' }}
+                            ${{ number_format($li['Total'], 2, '.', ',') ?? 'Total no disponible' }}
                         </div>
                         <div class="col-lg-1 border border-bottom col-12 d-flex align-items-center justify-content-center border-end border-dark">
                             {{ $li['FechaTimbrado'] ?? 'Fecha Timbrado no disponible' }}
@@ -75,10 +75,10 @@
                         <div class="col-lg-3 border border-bottom col-12">
                             <div class="row">
                                 <div class="col-6 px-0"> {{-- Para cancelar --}}
-                                    <button class="btn btn-danger w-100 rounded-0 h-100" data-bs-toggle="modal" data-bs-target="#staticBackdrop-{{ $li['UID'] }}" @if($li['Status'] == 'cancelada') disabled @endif>Cancelar</button>
+                                    <button class="btn btn-danger w-100 rounded-0 h-100" data-bs-toggle="modal" data-bs-target="#staticBackdrop-{{ $li['UID'] }}" @if($li['Status'] == 'cancelada') disabled @endif><i class="bi bi-trash"></i> Cancelar</button>
                                 </div>
                                 <div class="col-6 px-0">    {{-- Envía por Email y lanza una pequeña notificación --}}
-                                    <button type="button" class="btn btn-dark w-100 rounded-0" onclick="sendEmail('{{ $li['UUID'] }}', '{{ $li['UID'] }}')">Enviar por Email</button>
+                                    <button type="button" class="btn btn-dark w-100 rounded-0" onclick="sendEmail('{{ $li['UUID'] }}', '{{ $li['UID'] }}')"><i class="bi bi-send"></i> Enviar por Email</button>
                                 </div>
                             </div>
                         </div>

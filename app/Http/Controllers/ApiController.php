@@ -57,10 +57,12 @@ class ApiController extends Controller
         }
 
         // Carga util condicional, con esto evito repetir demasiado código, unicamente determino que campos enviaré a la API
+        // usando la petición POST
         $postData = [
             'motivo' => $motivo,
         ];
 
+        // En caaso de de que el formulario tenga motivo 01, entonces se agregará el folio sustituto a la petición POST
         if ($motivo == '01') {
             $postData['folioSustituto'] = $folio_sustituto;
         }
